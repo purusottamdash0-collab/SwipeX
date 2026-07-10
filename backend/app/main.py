@@ -128,3 +128,10 @@ def read_root():
         "docs": "/docs",
         "version": settings.VERSION
     }
+@app.get("/health")
+def health():
+    return {
+        "status": "healthy",
+        "service": "SwipeX API",
+        "version": settings.VERSION
+    }

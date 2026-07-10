@@ -7,8 +7,8 @@ from app.ai.matching_engine import compute_job_match
 
 client = TestClient(app)
 
-def test_root_endpoint():
-    response = client.get("/")
+def test_health_endpoint():
+    response = client.get("/health")
     assert response.status_code == 200
     assert response.json()["status"] == "healthy"
 
