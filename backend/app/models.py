@@ -36,6 +36,8 @@ class User(Base):
     avatar_url = Column(Text, nullable=True)
     is_active = Column(Boolean, default=True, index=True)
     is_verified = Column(Boolean, default=False)
+    auth_provider = Column(String(50), default="email", nullable=False)
+    google_id = Column(String(255), unique=True, index=True, nullable=True)
     created_at = Column(DateTime, default=utc_now)
 
     profile = relationship("UserProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")

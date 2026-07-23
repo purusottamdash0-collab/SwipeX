@@ -111,3 +111,15 @@ def test_admin_dashboard_permissions():
 
     res_stats = client.get("/api/v1/admin/stats", headers=headers)
     assert res_stats.status_code == 403
+
+def test_google_login_invalid_token():
+    """Verify that the google login route rejects invalid or expired Google ID tokens."""
+    response = client.post("/api/v1/auth/google", json={
+        "email": "invalid-email@swipex.io",
+        "fullName": "Invalid Google User",
+        "googleToken": "invalid_fake_token_12345",
+        "role": "user"
+    })
+    # Since the token is invalid, it must reject with 400
+    assert response.status_code == 400
+    assert "google token verification failed" in response.json()["detail"].lower() or "invalid google token" in response.json()["detail"].lower()

@@ -18,6 +18,31 @@ if settings.is_production and settings.SECRET_KEY == "change-me-before-productio
 # Create tables
 Base.metadata.create_all(bind=engine)
 
+# Auto migrate schema for Google OAuth columns if missing
+from sqlalchemy import text
+db_session_mig = SessionLocal()
+try:
+    # Check auth_provider
+    try:
+        db_session_mig.execute(text("SELECT auth_provider FROM users LIMIT 1"))
+    except Exception:
+        db_session_mig.rollback()
+        db_session_mig.execute(text("ALTER TABLE users ADD COLUMN auth_provider VARCHAR(50) DEFAULT 'email' NOT NULL"))
+        db_session_mig.commit()
+        print("Migrated auth_provider column to users table.")
+    # Check google_id
+    try:
+        db_session_mig.execute(text("SELECT google_id FROM users LIMIT 1"))
+    except Exception:
+        db_session_mig.rollback()
+        db_session_mig.execute(text("ALTER TABLE users ADD COLUMN google_id VARCHAR(255)"))
+        db_session_mig.commit()
+        print("Migrated google_id column to users table.")
+except Exception as migration_error:
+    print(f"Database migration notice: {migration_error}")
+finally:
+    db_session_mig.close()
+
 # Auto seed database on startup ONLY in development
 if settings.ENVIRONMENT != "production":
     try:

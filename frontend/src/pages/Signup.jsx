@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
@@ -12,9 +12,42 @@ export default function Signup() {
   const [role, setRole] = useState('user');
   const [loading, setLoading] = useState(false);
 
-  const { register } = useAuth();
+  const { register, googleLogin } = useAuth();
   const { addToast } = useNotification();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    /* global google */
+    if (typeof google !== 'undefined') {
+      try {
+        google.accounts.id.initialize({
+          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || "369527787342-google-demo-id.apps.googleusercontent.com",
+          callback: handleGoogleCredentialResponse,
+          cancel_on_tap_outside: false
+        });
+        
+        google.accounts.id.renderButton(
+          document.getElementById("googleSignUpButton"),
+          { theme: "outline", size: "large", width: "100%", text: "signup_with", shape: "rectangular" }
+        );
+      } catch (err) {
+        console.error("Failed to initialize Google signup button:", err);
+      }
+    }
+  }, [role]);
+
+  const handleGoogleCredentialResponse = async (response) => {
+    setLoading(true);
+    try {
+      await googleLogin(response.credential, role);
+      addToast('Google Sign Up successful!', 'success');
+      navigate('/swipe');
+    } catch (err) {
+      addToast(err.response?.data?.detail || 'Google authentication failed', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -137,6 +170,13 @@ export default function Signup() {
             {loading ? 'Creating Account...' : 'Create Free Account'}
           </button>
         </form>
+
+        <div className="relative my-4">
+          <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-[#262626]"></div></div>
+          <div className="relative flex justify-center text-xs uppercase"><span className="bg-[#121212] px-3 text-[#A8A8A8] rounded-full border border-[#262626]">Or</span></div>
+        </div>
+
+        <div id="googleSignUpButton" className="w-full flex justify-center mt-1"></div>
 
         <p className="text-center text-xs text-[#A8A8A8]">
           Already registered?{' '}

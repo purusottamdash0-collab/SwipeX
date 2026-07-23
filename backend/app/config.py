@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "development"
     CORS_ORIGINS: str = "http://localhost:3000,http://localhost:5173"
     GOOGLE_OAUTH_ENABLED: bool = False
+    GOOGLE_CLIENT_ID: str = ""
+    GOOGLE_CLIENT_SECRET: str = ""
     # The Vite frontend is deployed separately. Keep the historical static UI
     # opt-in only to avoid serving a stale application from the API process.
     SERVE_LEGACY_UI: bool = False

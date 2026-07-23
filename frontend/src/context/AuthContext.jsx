@@ -59,8 +59,13 @@ export const AuthProvider = ({ children }) => {
     return userData;
   };
 
-  const googleLogin = async (email, full_name, role = 'user') => {
-    const res = await API.post('/auth/google', { email, full_name, role });
+  const googleLogin = async (idToken, role = 'user') => {
+    const res = await API.post('/auth/google', {
+      email: 'temp-google@swipex.io',
+      fullName: 'Temp Google User',
+      googleToken: idToken,
+      role: role
+    });
     const { access_token, refresh_token, user: userData } = res.data;
     localStorage.setItem('swipex_token', access_token);
     localStorage.setItem('swipex_refresh_token', refresh_token);
